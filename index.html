@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="site-title-tag">IJERDID Gaming & Casino Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            cyan: '#06b6d4',
+                            purple: '#9333ea',
+                            gold: '#eab308',
+                            dark: '#0B0F19',
+                            card: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Prompt', sans-serif; background-color: #0B0F19; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0B0F19; }
+        ::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 4px; }
+        
+        .wheel-pointer {
+            width: 0; height: 0; 
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #ef4444;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.5));
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <!-- MAIN NAVBAR -->
+    <nav class="bg-slate-900/90 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchMainView('client')">
+                <div id="brand-icon-box" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-cyan-500/20">
+                    <i id="brand-icon" class="fa-solid fa-gamepad"></i>
+                </div>
+                <div>
+                    <h1 id="brand-name" class="font-bold text-lg text-white leading-none tracking-wider">IJERDID PLATFORM</h1>
+                    <p id="brand-tagline" class="text-xs text-cyan-400">GACHA & CASINO PLATFORM</p>
+                </div>
+            </div>
+
+            <!-- Global Stats & Actions -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                <!-- User Credit Pill -->
+                <div class="flex items-center gap-2 bg-slate-800/80 border border-slate-700/60 px-3.5 py-1.5 rounded-full">
+                    <i class="fa-solid fa-coins text-amber-400"></i>
+                    <span id="current-user-credit" class="font-mono font-bold text-amber-400 text-sm">0</span>
+                    <span class="text-xs text-slate-400">P</span>
+                </div>
+
+                <!-- TopUp Button -->
+                <button onclick="openTopUpModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center gap-1 transition shadow-lg shadow-emerald-600/20">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> แจ้งสลิป/เติมเงิน
+                </button>
+
+                <!-- Quick Music Control -->
+                <button onclick="toggleMusicPlay()" class="hidden sm:flex items-center gap-2 bg-purple-600/20 border border-purple-500/30 px-3.5 py-1.5 rounded-full text-purple-300 hover:bg-purple-600/30 text-xs transition">
+                    <i id="nav-music-icon" class="fa-solid fa-music"></i>
+                    <span id="music-status-text">เปิดเพลง</span>
+                </button>
+
+                <!-- Auth / Profile Section -->
+                <div id="nav-auth-section" class="flex items-center gap-2"></div>
+
+                <!-- Admin Switcher Button -->
+                <button id="btn-view-admin" onclick="switchMainView('admin')" class="hidden px-3.5 py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/30 transition">
+                    <i class="fa-solid fa-user-shield mr-1"></i> หลังบ้าน (Admin)
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hidden YouTube Audio Player Container -->
+    <div id="youtube-player-container" class="hidden"></div>
+
+    <!-- VIEW 1: CLIENT WEBSITE -->
+    <div id="view-client" class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+        <div class="bg-gradient-to-r from-purple-900/40 via-cyan-900/40 to-purple-900/40 border border-cyan-500/30 p-3.5 rounded-2xl flex items-center gap-3">
+            <span class="bg-cyan-500 text-slate-950 font-bold text-xs px-2.5 py-1 rounded-lg">ประกาศ</span>
+            <marquee id="client-announcement" class="text-xs sm:text-sm text-cyan-200">ยินดีต้อนรับสู่ระบบเว็บสุ่มรางวัลและคาสิโนบาคาร่าออนไลน์ สมัครสมาชิกรับเครดิตฟรีเริ่มต้น!</marquee>
+        </div>
+
+        <!-- Hero Banner & Music Player Widget -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl relative h-64 sm:h-80">
+                <img id="hero-banner-img" src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1000&auto=format&fit=crop&q=80" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex flex-col justify-end p-6">
+                    <h2 id="hero-banner-title" class="text-xl sm:text-2xl font-bold text-white">วงล้อกาชาปอง UR & มินิเกมบาคาร่าสุดมันส์</h2>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-1">ล็อกอินแล้วร่วมสนุก ลุ้นรับรางวัลใหญ่ได้ทันที</p>
+                </div>
+            </div>
+
+            <!-- MUSIC PLAYER CARD -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-white flex items-center gap-2">
+                        <i id="music-disc-icon" class="fa-solid fa-compact-disc text-cyan-400"></i>
+                        <span>เครื่องเล่นเพลง YouTube ประจำเว็บ</span>
+                    </h3>
+                    <div class="mt-4 bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-purple-400 text-xl">
+                            <i class="fa-solid fa-music"></i>
+                        </div>
+                        <div class="overflow-hidden flex-1">
+                            <h4 id="current-song-title" class="text-sm font-semibold text-white truncate">ยังไม่มีเพลงในระบบ</h4>
+                            <p id="current-song-status" class="text-xs text-slate-400">กดปุ่มเล่นเพื่อฟังเพลง</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center gap-4 mt-6">
+                        <button onclick="prevSong()" title="เพลงก่อนหน้า" class="p-2 text-slate-400 hover:text-white transition"><i class="fa-solid fa-backward text-lg"></i></button>
+                        <button onclick="toggleMusicPlay()" id="btn-play-pause" title="เล่น/หยุด" class="w-12 h-12 rounded-full bg-cyan-500 text-slate-950 font-bold flex items-center justify-center shadow-lg shadow-cyan-500/30 hover:bg-cyan-400 transition"><i class="fa-solid fa-play text-lg"></i></button>
+                        <button onclick="nextSong()" title="เพลงถัดไป" class="p-2 text-slate-400 hover:text-white transition"><i class="fa-solid fa-forward text-lg"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="flex items-center gap-3 border-b border-slate-800 pb-3 overflow-x-auto">
+                <button onclick="switchClientTab('gacha')" id="client-tab-gacha" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-cyan-500 text-slate-950 transition whitespace-nowrap">
+                    <i class="fa-solid fa-dharmachakra text-purple-950 mr-1.5"></i> วงล้อกาชา (Gacha)
+                </button>
+                <button onclick="switchClientTab('baccarat')" id="client-tab-baccarat" class="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-white transition whitespace-nowrap">
+                    <i class="fa-solid fa-dice text-amber-400 mr-1.5"></i> บาคาร่าออนไลน์
+                </button>
+            </div>
+
+            <div id="client-sec-gacha" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
+                <div class="text-center max-w-lg mx-auto">
+                    <span class="px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/30 text-xs font-bold">LUCKY GACHA WHEEL</span>
+                    <h3 class="text-2xl font-bold text-white mt-2">วงล้อสุ่มกาชาปอง</h3>
+                    <p class="text-xs text-slate-400 mt-1">ลุ้นรับรางวัลตามเรทเปอร์เซ็นต์ หมุนรอบละ <span id="gacha-cost-display" class="text-amber-400 font-bold">50</span> Points</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                    <div class="lg:col-span-2 flex flex-col items-center justify-center relative">
+                        <div class="wheel-pointer z-10 -mb-3"></div>
+                        <canvas id="gachaCanvas" width="360" height="360" class="rounded-full shadow-2xl border-4 border-slate-800 bg-slate-950 max-w-full"></canvas>
+                        
+                        <button onclick="spinGachaWheel()" id="btn-spin-gacha" class="mt-6 px-8 py-3.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white font-bold text-base rounded-2xl shadow-xl shadow-purple-600/30 hover:scale-105 transition">
+                            <i class="fa-solid fa-dharmachakra mr-2"></i> หมุนวงล้อ (<span id="btn-gacha-price">50</span> P)
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <h4 class="font-bold text-sm text-white border-b border-slate-800 pb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-cyan-400"></i> ประวัติการสุ่มล่าสุด
+                        </h4>
+                        <div id="gacha-history" class="space-y-2 max-h-60 overflow-y-auto text-xs text-slate-400">
+                            <p class="text-slate-600 italic text-center py-4">ยังไม่มีประวัติการหมุน</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="client-sec-baccarat" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
+                <div class="text-center max-w-lg mx-auto">
+                    <span class="px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 text-xs font-bold">CASINO GAME</span>
+                    <h3 class="text-2xl font-bold text-white mt-2">บาคาร่าออนไลน์</h3>
+                    <p class="text-xs text-slate-400 mt-1">ทายผลฝั่ง Player, Banker หรือ Tie</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-950 p-6 rounded-2xl border border-slate-800">
+                    <div class="bg-blue-950/40 border border-blue-500/30 rounded-2xl p-5 text-center flex flex-col justify-between">
+                        <h4 class="font-bold text-blue-400 text-lg">PLAYER (ผู้เล่น)</h4>
+                        <div id="player-cards" class="flex justify-center gap-3 my-6 min-h-[90px]">
+                            <div class="w-14 h-20 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center font-bold text-slate-500">?</div>
+                        </div>
+                        <div class="text-sm font-semibold text-slate-300">แต้มรวม: <span id="player-score" class="text-blue-400 font-bold">0</span></div>
+                    </div>
+
+                    <div class="bg-rose-950/40 border border-rose-500/30 rounded-2xl p-5 text-center flex flex-col justify-between">
+                        <h4 class="font-bold text-rose-400 text-lg">BANKER (เจ้ามือ)</h4>
+                        <div id="banker-cards" class="flex justify-center gap-3 my-6 min-h-[90px]">
+                            <div class="w-14 h-20 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center font-bold text-slate-500">?</div>
+                        </div>
+                        <div class="text-sm font-semibold text-slate-300">แต้มรวม: <span id="banker-score" class="text-rose-400 font-bold">0</span></div>
+                    </div>
+                </div>
+
+                <div class="max-w-xl mx-auto space-y-4">
+                    <div class="flex items-center justify-center gap-3">
+                        <span class="text-xs text-slate-400">เดิมพัน (Points):</span>
+                        <input type="number" id="bac-bet-amount" value="50" min="10" class="w-32 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-center text-amber-400 font-bold focus:outline-none">
+                    </div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <button onclick="playBaccarat('player')" class="py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl text-sm">PLAYER</button>
+                        <button onclick="playBaccarat('tie')" class="py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl text-sm">TIE (1:8)</button>
+                        <button onclick="playBaccarat('banker')" class="py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-2xl text-sm">BANKER</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 2: ADMIN PANEL -->
+    <div id="view-admin" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+        <div class="bg-gradient-to-r from-purple-900 to-slate-900 border border-purple-500/40 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-bold">ADMIN CONTROL PANEL</span>
+                <h2 class="text-2xl font-bold text-white mt-2">ระบบจัดการหลังบ้านแอดมิน (Firebase Real-time Sync)</h2>
+            </div>
+            <button onclick="switchMainView('client')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700">
+                <i class="fa-solid fa-arrow-left mr-1"></i> กลับหน้าเว็บหลัก
+            </button>
+        </div>
+
+        <div class="flex items-center gap-2 border-b border-slate-800 pb-3 overflow-x-auto">
+            <button onclick="switchAdminTab('bills')" id="admin-tab-bills" class="px-4 py-2 rounded-xl font-bold text-xs bg-purple-600 text-white transition whitespace-nowrap">ตรวจสอบสลิป/บิลเติมเงิน</button>
+            <button onclick="switchAdminTab('builder')" id="admin-tab-builder" class="px-4 py-2 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition whitespace-nowrap">ปรับแต่งเว็บ</button>
+            <button onclick="switchAdminTab('gacha')" id="admin-tab-gacha" class="px-4 py-2 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition whitespace-nowrap">จัดการวงล้อกาชา & เรท %</button>
+            <button onclick="switchAdminTab('users')" id="admin-tab-users" class="px-4 py-2 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition whitespace-nowrap">จัดการสมาชิก & เติม/หักเครดิต</button>
+            <button onclick="switchAdminTab('music')" id="admin-tab-music" class="px-4 py-2 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition whitespace-nowrap">จัดการเพลง YouTube</button>
+        </div>
+
+        <!-- Admin Sec: Bills -->
+        <div id="admin-sec-bills" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <h3 class="text-lg font-bold text-white border-b border-slate-800 pb-3">รายการแจ้งชำระเงิน / สลิปที่รออนุมัติ</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-400">
+                    <thead class="bg-slate-800 text-slate-300 text-xs">
+                        <tr>
+                            <th class="p-3">เวลา</th>
+                            <th class="p-3">Username</th>
+                            <th class="p-3">จำนวน (Points)</th>
+                            <th class="p-3">รูปสลิป / ลิงก์บิล</th>
+                            <th class="p-3">สถานะ</th>
+                            <th class="p-3 text-right">การอนุมัติ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-bills-list" class="divide-y divide-slate-800"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Admin Sec: Builder -->
+        <div id="admin-sec-builder" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <h3 class="text-lg font-bold text-white border-b border-slate-800 pb-3">ตั้งค่าหน้าเว็บ (รองรับลิงก์ Discord CDN)</h3>
+            <form onsubmit="handleSaveWebSettings(event)" class="space-y-4 max-w-xl">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">ชื่อเว็บไซต์</label>
+                    <input type="text" id="setting-brand-name" value="IJERDID PLATFORM" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">คำโปรย</label>
+                    <input type="text" id="setting-brand-tagline" value="GACHA & CASINO PLATFORM" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">ข้อความประกาศ</label>
+                    <input type="text" id="setting-announcement" value="ยินดีต้อนรับสู่ระบบเว็บสุ่มรางวัลและคาสิโนบาคาร่าออนไลน์ สมัครสมาชิกรับเครดิตฟรีเริ่มต้น!" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">ลิงก์รูปภาพแบนเนอร์หลัก (รองรับ Discord CDN)</label>
+                    <input type="url" id="setting-banner-img" value="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1000&auto=format&fit=crop&q=80" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white">
+                </div>
+                <button type="submit" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl">บันทึกการตั้งค่า</button>
+            </form>
+        </div>
+
+        <!-- Admin Sec: Gacha -->
+        <div id="admin-sec-gacha" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6">
+            <h3 class="text-lg font-bold text-white border-b border-slate-800 pb-3">จัดการรายการและเรทเปอร์เซ็นต์ (%) กาชา</h3>
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between gap-4 max-w-md">
+                <div><h4 class="font-bold text-white text-sm">ราคาหมุนต่อครั้ง</h4></div>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="setting-gacha-price" value="50" min="1" class="w-24 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-center text-amber-400 font-bold">
+                    <button onclick="saveGachaPrice()" class="px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-xl">บันทึก</button>
+                </div>
+            </div>
+
+            <form onsubmit="handleAddGachaItem(event)" class="grid grid-cols-1 sm:grid-cols-5 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 items-end">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">ชื่อรางวัล</label>
+                    <input type="text" id="gacha-label-input" required placeholder="เช่น สกินปืน UR" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">มูลค่า Points</label>
+                    <input type="number" id="gacha-points-input" required placeholder="500" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">เรทออก (%)</label>
+                    <input type="number" id="gacha-rate-input" required min="1" max="100" placeholder="10" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">สีช่อง</label>
+                    <input type="color" id="gacha-color-input" value="#9333ea" class="w-full h-9 bg-slate-800 border border-slate-700 rounded-xl px-1 cursor-pointer">
+                </div>
+                <button type="submit" class="bg-purple-600 text-white font-bold rounded-xl text-xs py-2.5 hover:bg-purple-500">เพิ่มรางวัล</button>
+            </form>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-400">
+                    <thead class="bg-slate-800 text-slate-300 text-xs">
+                        <tr>
+                            <th class="p-3">สี</th>
+                            <th class="p-3">รางวัล</th>
+                            <th class="p-3">Points</th>
+                            <th class="p-3">เรทออก (%)</th>
+                            <th class="p-3 text-right">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-gacha-list" class="divide-y divide-slate-800"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Admin Sec: Users -->
+        <div id="admin-sec-users" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6">
+            <h3 class="text-lg font-bold text-white border-b border-slate-800 pb-3">จัดการรายชื่อสมาชิก & เติม/หักเครดิต/ลบสมาชิก</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-400">
+                    <thead class="bg-slate-800 text-slate-300 text-xs">
+                        <tr>
+                            <th class="p-3">Username</th>
+                            <th class="p-3">Role</th>
+                            <th class="p-3">Points เครดิต</th>
+                            <th class="p-3 text-right">จัดการ (เติม / หัก / เปลี่ยนรหัส / ลบ)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-users-list" class="divide-y divide-slate-800"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Admin Sec: Music -->
+        <div id="admin-sec-music" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6">
+            <h3 class="text-lg font-bold text-white border-b border-slate-800 pb-3">จัดการเพลง YouTube ประจำเว็บ</h3>
+            <form onsubmit="handleAddMusic(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 items-end">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">ชื่อเพลง</label>
+                    <input type="text" id="music-title-input" required placeholder="เช่น EDM Cyberpunk" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">ลิงก์ YouTube (เช่น youtu.be/xxx)</label>
+                    <input type="text" id="music-url-input" required placeholder="https://youtu.be/xxxxx" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <button type="submit" class="bg-purple-600 text-white font-bold rounded-xl text-xs py-2.5 hover:bg-purple-500">เพิ่มเพลงใหม่</button>
+            </form>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-400">
+                    <thead class="bg-slate-800 text-slate-300 text-xs">
+                        <tr>
+                            <th class="p-3">ชื่อเพลง</th>
+                            <th class="p-3">YouTube ID / Link</th>
+                            <th class="p-3 text-right">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-music-list" class="divide-y divide-slate-800"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOPUP / BILL MODAL -->
+    <div id="topup-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full relative space-y-4 shadow-2xl">
+            <button onclick="closeTopUpModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+
+            <h3 class="text-xl font-bold text-white text-center flex items-center justify-center gap-2">
+                <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> แจ้งสลิปโอนเงิน / บิลเติมเงิน
+            </h3>
+            
+            <form onsubmit="handleUploadBill(event)" class="space-y-4">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">จำนวน Points ที่ต้องการเติม</label>
+                    <input type="number" id="bill-amount" required min="1" placeholder="เช่น 100" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">อัปโหลดไฟล์สลิป หรือ แนบลิงก์รูปภาพ (Discord CDN / Imgur)</label>
+                    <input type="file" id="bill-file-input" accept="image/*" onchange="handleFileSelect(event)" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer mb-2">
+                    <input type="url" id="bill-url-input" placeholder="หรือวางลิงก์รูปสลิปตรงนี้..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-xs text-white focus:outline-none">
+                </div>
+                
+                <div id="bill-preview-box" class="hidden text-center">
+                    <span class="text-xs text-slate-400 block mb-1">ตัวอย่างสลิปที่แนบ:</span>
+                    <img id="bill-img-preview" src="" class="max-h-40 mx-auto rounded-xl border border-slate-700 object-contain">
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-emerald-600/20">ส่งสลิปแจ้งเติมเงิน</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AUTH MODALS -->
+    <div id="auth-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full relative space-y-6 shadow-2xl">
+            <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+
+            <!-- Login Form -->
+            <div id="form-login" class="space-y-4">
+                <h3 class="text-xl font-bold text-white text-center">เข้าสู่ระบบ</h3>
+                <form onsubmit="handleLogin(event)" class="space-y-3">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Username</label>
+                        <input type="text" id="login-user" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Password</label>
+                        <input type="password" id="login-pass" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <button type="button" onclick="switchAuthView('forgot')" class="text-cyan-400 hover:underline">ลืมรหัสผ่าน?</button>
+                        <button type="button" onclick="switchAuthView('register')" class="text-purple-400 hover:underline">สมัครสมาชิกใหม่</button>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-sm transition">เข้าสู่ระบบ</button>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="form-register" class="space-y-4 hidden">
+                <h3 class="text-xl font-bold text-white text-center">สมัครสมาชิกใหม่ (รับฟรี 500 P)</h3>
+                <form onsubmit="handleRegister(event)" class="space-y-3">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Username</label>
+                        <input type="text" id="reg-user" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Password</label>
+                        <input type="password" id="reg-pass" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">คำถามกันลืมรหัส (เช่น สัตว์เลี้ยงตัวแรก)</label>
+                        <input type="text" id="reg-answer" required placeholder="คำตอบของคุณ" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+                    <div class="text-right text-xs">
+                        <button type="button" onclick="switchAuthView('login')" class="text-cyan-400 hover:underline">มีบัญชีอยู่แล้ว? เข้าสู่ระบบ</button>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-sm transition">ยืนยันสมัครสมาชิก</button>
+                </form>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="form-forgot" class="space-y-4 hidden">
+                <h3 class="text-xl font-bold text-white text-center">กู้คืนรหัสผ่าน</h3>
+                <form onsubmit="handleForgot(event)" class="space-y-3">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Username ของคุณ</label>
+                        <input type="text" id="forgot-user" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">คำตอบยืนยันตัวตน (ที่ตั้งไว้ตอนสมัคร)</label>
+                        <input type="text" id="forgot-answer" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">รหัสผ่านใหม่</label>
+                        <input type="password" id="forgot-newpass" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+                    <div class="text-right text-xs">
+                        <button type="button" onclick="switchAuthView('login')" class="text-cyan-400 hover:underline">กลับไปหน้าเข้าสู่ระบบ</button>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm transition">เปลี่ยนรหัสผ่านใหม่</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+        <p>© 2026 IJERDID Gaming & Casino Platform. All rights reserved.</p>
+    </footer>
+
+    <!-- Firebase SDK (Compat Version สำหรับใช้งานผ่าน Script Tag ง่ายๆ) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <!-- YouTube IFrame API Script -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- Main JavaScript Logic (Firebase Realtime Sync) -->
+    <script>
+        // ==========================================================
+        // ⚙️ Firebase Realtime Database URL ของคุณ
+        // ==========================================================
+        const firebaseConfig = {
+            databaseURL: "https://authur-7bdc4-default-rtdb.firebaseio.com"[cite: 6]
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let users = [];
+        let gachaItems = [];
+        let gachaPrice = 50;
+        let playlist = [];
+        let webSettings = {};
+        let bills = [];
+        let uploadedBase64Img = "";
+        
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let isSpinning = false;
+        let currentAngle = 0;
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let ytPlayer = null;
+
+        // เชื่อมต่อ Realtime ฟังการเปลี่ยนแปลงจาก Firebase ทันทีแบบ Real-time
+        db.ref('/').on('value', (snapshot) => {
+            let data = snapshot.val() || {};
+
+            let loadedUsers = data.users || [];
+            if (!loadedUsers.some(u => u.username === 'admin')) {
+                loadedUsers.unshift({ username: 'admin', pass: '1234', role: 'ADMIN', credit: 9999, answer: 'admin' });
+            }
+            users = loadedUsers;
+            bills = data.bills || [];
+
+            gachaItems = data.gachaItems || [
+                { id: 1, label: 'โบนัส 10 P', points: 10, rate: 40, color: '#3b82f6' },
+                { id: 2, label: 'สกิน EVO UR', points: 500, rate: 5, color: '#eab308' },
+                { id: 3, label: 'เกลือ (0 P)', points: 0, rate: 30, color: '#64748b' },
+                { id: 4, label: 'โบนัส 100 P', points: 100, rate: 15, color: '#10b981' },
+                { id: 5, label: 'โค้ดเพชร FF', points: 250, rate: 10, color: '#ec4899' }
+            ];
+            gachaPrice = data.gachaPrice || 50;
+            playlist = data.playlist || [
+                { id: 1, title: 'EDM Cyberpunk Beats', url: 'https://youtu.be/36YnV9STBqc' },
+                { id: 2, title: 'Gaming Lounge Music', url: 'https://youtu.be/5qap5aO4i9A' }
+            ];
+            webSettings = data.webSettings || {
+                name: 'IJERDID PLATFORM',
+                tagline: 'GACHA & CASINO PLATFORM',
+                announcement: 'ยินดีต้อนรับสู่ระบบเว็บสุ่มรางวัลและคาสิโนบาคาร่าออนไลน์ สมัครสมาชิกรับเครดิตฟรีเริ่มต้น!',
+                bannerImg: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1000&auto=format&fit=crop&q=80',
+                bannerTitle: 'วงล้อกาชาปอง UR & มินิเกมบาคาร่าสุดมันส์'
+            };
+
+            applyWebSettings();
+            syncCurrentUserState();
+            updateNavbarAuth();
+            renderAdminGachaList();
+            renderAdminUsersList();
+            renderAdminBillsList();
+            renderAdminMusicList();
+            document.getElementById('gacha-cost-display').innerText = gachaPrice;
+            document.getElementById('btn-gacha-price').innerText = gachaPrice;
+            drawWheel();
+        });
+
+        async function saveCloudData() {
+            if(currentUser) {
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+            await db.ref('/').set({
+                users,
+                gachaItems,
+                gachaPrice,
+                playlist,
+                webSettings,
+                bills
+            });
+        }
+
+        function applyWebSettings() {
+            document.getElementById('brand-name').innerText = webSettings.name || 'IJERDID PLATFORM';
+            document.getElementById('brand-tagline').innerText = webSettings.tagline || 'GACHA & CASINO';
+            document.getElementById('client-announcement').innerText = webSettings.announcement || '';
+            document.getElementById('hero-banner-img').src = webSettings.bannerImg || '';
+            document.getElementById('hero-banner-title').innerText = webSettings.bannerTitle || '';
+        }
+
+        function syncCurrentUserState() {
+            if(!currentUser) return;
+            let found = users.find(x => x.username === currentUser.username);
+            if(found) {
+                currentUser = found;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            } else {
+                logout();
+            }
+        }
+
+        // YOUTUBE API PLAYER SETUP
+        function onYouTubeIframeAPIReady() {
+            if(playlist.length === 0) return;
+            let ytId = extractYouTubeId(playlist[0].url);
+            document.getElementById('current-song-title').innerText = playlist[0].title;
+            
+            ytPlayer = new YT.Player('youtube-player-container', {
+                height: '0',
+                width: '0',
+                videoId: ytId,
+                playerVars: { 'autoplay': 0, 'controls': 0 },
+                events: {
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function extractYouTubeId(url) {
+            let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            let match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : '36YnV9STBqc';
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                nextSong();
+            }
+        }
+
+        function toggleMusicPlay() {
+            if(!playlist || playlist.length === 0) return showToast('ยังไม่มีเพลงในระบบ', 'warning');
+            if(!ytPlayer) return showToast('เครื่องเล่นเพลงกำลังโหลด กรุณาลองใหม่อีกครั้ง', 'warning');
+
+            if (isPlaying) {
+                ytPlayer.pauseVideo();
+                isPlaying = false;
+                document.getElementById('music-status-text').innerText = 'เปิดเพลง';
+                document.getElementById('current-song-status').innerText = 'หยุดเล่นแล้ว';
+                document.getElementById('btn-play-pause').innerHTML = '<i class="fa-solid fa-play text-lg"></i>';
+                document.getElementById('music-disc-icon').classList.remove('animate-spin');
+            } else {
+                ytPlayer.playVideo();
+                isPlaying = true;
+                document.getElementById('music-status-text').innerText = 'หยุดเพลง';
+                document.getElementById('current-song-status').innerText = 'กำลังเล่นเพลง...';
+                document.getElementById('btn-play-pause').innerHTML = '<i class="fa-solid fa-pause text-lg"></i>';
+                document.getElementById('music-disc-icon').classList.add('animate-spin');
+            }
+        }
+
+        function prevSong() {
+            if(!playlist || playlist.length === 0) return;
+            currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+            playCurrentSongIndex();
+        }
+
+        function nextSong() {
+            if(!playlist || playlist.length === 0) return;
+            currentSongIndex = (currentSongIndex + 1) % playlist.length;
+            playCurrentSongIndex();
+        }
+
+        function playCurrentSongIndex() {
+            let song = playlist[currentSongIndex];
+            document.getElementById('current-song-title').innerText = song.title;
+            if(ytPlayer) {
+                ytPlayer.loadVideoById(extractYouTubeId(song.url));
+                if(isPlaying) ytPlayer.playVideo();
+            }
+        }
+
+        // ระบบแจ้งสลิป/เติมเงิน
+        function openTopUpModal() {
+            if(!currentUser) return openAuthModal('login');
+            document.getElementById('topup-modal').classList.remove('hidden');
+        }
+        function closeTopUpModal() {
+            document.getElementById('topup-modal').classList.add('hidden');
+            document.getElementById('bill-preview-box').classList.add('hidden');
+            uploadedBase64Img = "";
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    uploadedBase64Img = evt.target.result;
+                    document.getElementById('bill-img-preview').src = uploadedBase64Img;
+                    document.getElementById('bill-preview-box').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function handleUploadBill(e) {
+            e.preventDefault();
+            const amount = parseInt(document.getElementById('bill-amount').value);
+            const urlInput = document.getElementById('bill-url-input').value.trim();
+            const finalImg = uploadedBase64Img || urlInput;
+
+            if(!amount || amount <= 0) return showToast('กรุณาระบุจำนวน Points', 'warning');
+            if(!finalImg) return showToast('กรุณาอัปโหลดไฟล์สลิปหรือระบุ URL รูปภาพ', 'warning');
+
+            bills.push({
+                id: Date.now(),
+                username: currentUser.username,
+                amount: amount,
+                image: finalImg,
+                status: 'PENDING',
+                time: new Date().toLocaleString('th-TH')
+            });
+
+            await saveCloudData();
+            closeTopUpModal();
+            e.target.reset();
+            showToast('แจ้งสลิปเติมเงินสำเร็จ! รอแอดมินตรวจสอบอนุมัติ', 'success');
+        }
+
+        function renderAdminBillsList() {
+            let list = document.getElementById('admin-bills-list');
+            if(!list) return;
+            list.innerHTML = '';
+            
+            if(bills.length === 0) {
+                list.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-600 italic">ยังไม่มีรายการแจ้งชำระเงิน</td></tr>`;
+                return;
+            }
+
+            bills.forEach(b => {
+                let statusBadge = b.status === 'APPROVED' ? `<span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg font-bold text-xs">อนุมัติแล้ว</span>` :
+                                 (b.status === 'REJECTED' ? `<span class="px-2 py-1 bg-rose-500/20 text-rose-400 rounded-lg font-bold text-xs">ปฏิเสธ</span>` :
+                                 `<span class="px-2 py-1 bg-amber-500/20 text-amber-400 rounded-lg font-bold text-xs">รอตรวจ</span>`);
+
+                list.innerHTML += `
+                    <tr>
+                        <td class="p-3 text-xs text-slate-400">${b.time}</td>
+                        <td class="p-3 font-semibold text-white">${b.username}</td>
+                        <td class="p-3 font-mono text-amber-400 font-bold">+${b.amount} P</td>
+                        <td class="p-3">
+                            <a href="${b.image}" target="_blank" class="text-xs text-cyan-400 underline flex items-center gap-1">
+                                <i class="fa-solid fa-image"></i> ดูสลิปใบเสร็จ
+                            </a>
+                        </td>
+                        <td class="p-3">${statusBadge}</td>
+                        <td class="p-3 text-right space-x-1">
+                            ${b.status === 'PENDING' ? `
+                                <button onclick="approveBill(${b.id})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-lg font-bold">อนุมัติ (+Points)</button>
+                                <button onclick="rejectBill(${b.id})" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white text-xs rounded-lg font-bold">ปฏิเสธ</button>
+                            ` : `-`}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function approveBill(billId) {
+            let b = bills.find(x => x.id === billId);
+            if(b && b.status === 'PENDING') {
+                b.status = 'APPROVED';
+                let u = users.find(x => x.username === b.username);
+                if(u) {
+                    u.credit += b.amount;
+                }
+                await saveCloudData();
+                showToast(`อนุมัติสลิปของ ${b.username} เติมเงิน +${b.amount} P เรียบร้อย`, 'success');
+            }
+        }
+
+        async function rejectBill(billId) {
+            let b = bills.find(x => x.id === billId);
+            if(b && b.status === 'PENDING') {
+                b.status = 'REJECTED';
+                await saveCloudData();
+                showToast(`ปฏิเสธสลิปรายการนี้เรียบร้อยแล้ว`, 'warning');
+            }
+        }
+
+        // AUTH & CORE SYSTEMS
+        async function handleRegister(e) {
+            e.preventDefault();
+            const u = document.getElementById('reg-user').value.trim();
+            const p = document.getElementById('reg-pass').value.trim();
+            const ans = document.getElementById('reg-answer').value.trim();
+
+            if (!u || !p) return showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
+            if (users.some(x => x.username.toLowerCase() === u.toLowerCase())) {
+                return showToast('Username นี้ถูกใช้งานแล้ว', 'warning');
+            }
+
+            users.push({ username: u, pass: p, role: 'USER', credit: 500, answer: ans });
+            await saveCloudData();
+
+            currentUser = { username: u, role: 'USER', credit: 500 };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateNavbarAuth();
+            closeAuthModal();
+            showToast('สมัครสมาชิกสำเร็จ! รับฟรี 500 Points', 'success');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-user').value.trim();
+            const p = document.getElementById('login-pass').value.trim();
+
+            let found = users.find(x => x.username === u && x.pass === p);
+            if (found) {
+                currentUser = { username: found.username, role: found.role, credit: found.credit };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateNavbarAuth();
+                closeAuthModal();
+                showToast(`ยินดีต้อนรับคุณ ${found.username}`, 'success');
+            } else {
+                showToast('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'warning');
+            }
+        }
+
+        async function handleForgot(e) {
+            e.preventDefault();
+            const u = document.getElementById('forgot-user').value.trim();
+            const ans = document.getElementById('forgot-answer').value.trim();
+            const newP = document.getElementById('forgot-newpass').value.trim();
+            
+            let user = users.find(x => x.username === u);
+            if (!user) return showToast('ไม่พบ Username นี้', 'warning');
+            if (user.answer !== ans) return showToast('คำตอบยืนยันตัวตนไม่ถูกต้อง', 'warning');
+
+            user.pass = newP;
+            await saveCloudData();
+            switchAuthView('login');
+            showToast('เปลี่ยนรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบใหม่', 'success');
+        }
+
+        function updateNavbarAuth() {
+            const authSec = document.getElementById('nav-auth-section');
+            const adminBtn = document.getElementById('btn-view-admin');
+            
+            if (currentUser) {
+                document.getElementById('current-user-credit').innerText = currentUser.credit.toLocaleString();
+                authSec.innerHTML = `
+                    <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700 text-xs">
+                        <i class="fa-solid fa-user text-cyan-400"></i>
+                        <span class="text-white font-semibold">${currentUser.username}</span>
+                        <button onclick="logout()" title="ออกจากระบบ" class="text-rose-400 ml-2 hover:text-rose-300 font-bold transition">
+                            <i class="fa-solid fa-right-from-bracket mr-1"></i> ออกจากระบบ
+                        </button>
+                    </div>
+                `;
+                if (currentUser.role === 'ADMIN') {
+                    adminBtn.classList.remove('hidden');
+                } else {
+                    adminBtn.classList.add('hidden');
+                }
+            } else {
+                document.getElementById('current-user-credit').innerText = '0';
+                adminBtn.classList.add('hidden');
+                authSec.innerHTML = `
+                    <button onclick="openAuthModal('login')" class="px-4 py-2 bg-cyan-500 text-slate-950 font-bold rounded-xl text-xs hover:bg-cyan-400 transition">เข้าสู่ระบบ</button>
+                    <button onclick="openAuthModal('register')" class="hidden sm:block px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs border border-slate-700 transition">สมัครสมาชิก</button>
+                `;
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateNavbarAuth();
+            switchMainView('client');
+            showToast('ออกจากระบบเรียบร้อยแล้ว', 'info');
+        }
+
+        function switchMainView(view) {
+            if (view === 'admin' && (!currentUser || currentUser.role !== 'ADMIN')) {
+                return showToast('เฉพาะบัญชีแอดมินเท่านั้น!', 'warning');
+            }
+            document.getElementById('view-client').classList.toggle('hidden', view !== 'client');
+            document.getElementById('view-admin').classList.toggle('hidden', view !== 'admin');
+            if (view === 'client') switchClientTab('gacha');
+        }
+
+        function switchClientTab(tab) {
+            ['gacha', 'baccarat'].forEach(t => {
+                document.getElementById(`client-sec-${t}`).classList.add('hidden');
+                document.getElementById(`client-tab-${t}`).className = "px-5 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-white transition whitespace-nowrap";
+            });
+            document.getElementById(`client-sec-${tab}`).classList.remove('hidden');
+            document.getElementById(`client-tab-${tab}`).className = "px-5 py-2.5 rounded-xl font-bold text-sm bg-cyan-500 text-slate-950 transition whitespace-nowrap";
+            if (tab === 'gacha') setTimeout(drawWheel, 50);
+        }
+
+        function switchAdminTab(tab) {
+            ['bills', 'builder', 'gacha', 'users', 'music'].forEach(t => {
+                document.getElementById(`admin-sec-${t}`).classList.add('hidden');
+                document.getElementById(`admin-tab-${t}`).className = "px-4 py-2 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition whitespace-nowrap";
+            });
+            document.getElementById(`admin-sec-${tab}`).classList.remove('hidden');
+            document.getElementById(`admin-tab-${tab}`).className = "px-4 py-2 rounded-xl font-bold text-xs bg-purple-600 text-white transition whitespace-nowrap";
+        }
+
+        function openAuthModal(mode) {
+            document.getElementById('auth-modal').classList.remove('hidden');
+            switchAuthView(mode);
+        }
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+        function switchAuthView(mode) {
+            ['login', 'register', 'forgot'].forEach(m => {
+                document.getElementById(`form-${m}`).classList.toggle('hidden', m !== mode);
+            });
+        }
+
+        // GACHA CANVAS
+        function drawWheel() {
+            const canvas = document.getElementById('gachaCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const totalRate = gachaItems.reduce((acc, item) => acc + item.rate, 0);
+            if (totalRate === 0) return;
+
+            let startAngle = currentAngle;
+            let centerX = canvas.width / 2;
+            let centerY = canvas.height / 2;
+            let radius = centerX - 10;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            gachaItems.forEach(item => {
+                let sliceAngle = (item.rate / totalRate) * 2 * Math.PI;
+                let endAngle = startAngle + sliceAngle;
+
+                ctx.beginPath();
+                ctx.fillStyle = item.color;
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.lineTo(centerX, centerY);
+                ctx.fill();
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + sliceAngle / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 11px Prompt";
+                ctx.fillText(item.label + ` (${item.rate}%)`, radius - 15, 4);
+                ctx.restore();
+
+                startAngle = endAngle;
+            });
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        async function spinGachaWheel() {
+            if (!currentUser) return openAuthModal('login');
+            if (isSpinning) return;
+            if (currentUser.credit < gachaPrice) return showToast('Points ของคุณไม่พอหมุนกาชา', 'warning');
+
+            currentUser.credit -= gachaPrice;
+            await updateUserCreditInStorage();
+            updateNavbarAuth();
+
+            isSpinning = true;
+            document.getElementById('btn-spin-gacha').disabled = true;
+
+            const totalRate = gachaItems.reduce((acc, item) => acc + item.rate, 0);
+            let winningIndex = 0;
+            let sum = 0;
+            let weightedRand = Math.random() * totalRate;
+
+            for (let i = 0; i < gachaItems.length; i++) {
+                sum += gachaItems[i].rate;
+                if (weightedRand <= sum) {
+                    winningIndex = i;
+                    break;
+                }
+            }
+
+            let accumulatedAngleBefore = 0;
+            for (let i = 0; i < winningIndex; i++) {
+                accumulatedAngleBefore += (gachaItems[i].rate / totalRate) * 2 * Math.PI;
+            }
+            let winningSliceAngle = (gachaItems[winningIndex].rate / totalRate) * 2 * Math.PI;
+            
+            let targetSectorCenter = accumulatedAngleBefore + (winningSliceAngle / 2);
+            let stopAngle = (3 * Math.PI / 2) - targetSectorCenter;
+            let finalAngle = (5 * 2 * Math.PI) + stopAngle;
+
+            let duration = 3500;
+            let startT = performance.now();
+            let initialAngle = currentAngle % (2 * Math.PI);
+
+            function animate(now) {
+                let progress = Math.min((now - startT) / duration, 1);
+                let easeOut = 1 - Math.pow(1 - progress, 3);
+                currentAngle = initialAngle + (finalAngle - initialAngle) * easeOut;
+                drawWheel();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    isSpinning = false;
+                    document.getElementById('btn-spin-gacha').disabled = false;
+                    let prize = gachaItems[winningIndex];
+                    if (prize.points > 0) {
+                        currentUser.credit += prize.points;
+                        updateUserCreditInStorage().then(() => updateNavbarAuth());
+                    }
+                    showToast(`ยินดีด้วย! คุณได้รับ "${prize.label}"`, 'success');
+
+                    let historyBox = document.getElementById('gacha-history');
+                    if (historyBox.querySelector('p')) historyBox.innerHTML = '';
+                    historyBox.innerHTML = `
+                        <div class="flex items-center justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <span class="font-semibold text-white">${prize.label}</span>
+                            <span class="text-amber-400 font-mono">+${prize.points} P</span>
+                        </div>
+                    ` + historyBox.innerHTML;
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        async function updateUserCreditInStorage() {
+            let u = users.find(x => x.username === currentUser.username);
+            if (u) u.credit = currentUser.credit;
+            await saveCloudData();
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        }
+
+        // BACCARAT GAME
+        async function playBaccarat(betOn) {
+            if (!currentUser) return openAuthModal('login');
+            let bet = parseInt(document.getElementById('bac-bet-amount').value) || 0;
+            if (bet <= 0) return showToast('กรุณาระบุยอดเดิมพัน', 'warning');
+            if (currentUser.credit < bet) return showToast('Points ไม่พอเดิมพัน', 'warning');
+
+            currentUser.credit -= bet;
+            await updateUserCreditInStorage();
+            updateNavbarAuth();
+
+            let pScore = Math.floor(Math.random() * 10);
+            let bScore = Math.floor(Math.random() * 10);
+            document.getElementById('player-score').innerText = pScore;
+            document.getElementById('banker-score').innerText = bScore;
+
+            document.getElementById('player-cards').innerHTML = `<div class="w-14 h-20 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white text-lg">${pScore}</div>`;
+            document.getElementById('banker-cards').innerHTML = `<div class="w-14 h-20 bg-rose-600 rounded-lg flex items-center justify-center font-bold text-white text-lg">${bScore}</div>`;
+
+            let res = pScore > bScore ? 'player' : (bScore > pScore ? 'banker' : 'tie');
+            if (betOn === res) {
+                let win = res === 'tie' ? bet * 9 : (res === 'player' ? bet * 2 : Math.floor(bet * 1.95));
+                currentUser.credit += win;
+                await updateUserCreditInStorage();
+                updateNavbarAuth();
+                showToast(`ชนะเดิมพัน! ได้รับ ${win} Points`, 'success');
+            } else {
+                showToast(`เสียใจด้วย ผลออก ${res.toUpperCase()}`, 'warning');
+            }
+        }
+
+        // ADMIN FUNCTIONS
+        async function saveGachaPrice() {
+            gachaPrice = parseInt(document.getElementById('setting-gacha-price').value) || 50;
+            await saveCloudData();
+            document.getElementById('gacha-cost-display').innerText = gachaPrice;
+            document.getElementById('btn-gacha-price').innerText = gachaPrice;
+            showToast('บันทึกราคาหมุนกาชาเรียบร้อย', 'success');
+        }
+
+        function renderAdminGachaList() {
+            let list = document.getElementById('admin-gacha-list');
+            if(!list) return;
+            list.innerHTML = '';
+            gachaItems.forEach(g => {
+                list.innerHTML += `
+                    <tr>
+                        <td class="p-3"><div class="w-5 h-5 rounded-full" style="background:${g.color}"></div></td>
+                        <td class="p-3 font-semibold text-white">${g.label}</td>
+                        <td class="p-3 text-amber-400 font-mono">${g.points} P</td>
+                        <td class="p-3 font-mono text-cyan-400">${g.rate}%</td>
+                        <td class="p-3 text-right"><button onclick="deleteGacha(${g.id})" class="text-xs text-rose-400 hover:underline">ลบ</button></td>
+                    </tr>
+                `;
+            });
+            drawWheel();
+        }
+
+        async function handleAddGachaItem(e) {
+            e.preventDefault();
+            gachaItems.push({
+                id: Date.now(),
+                label: document.getElementById('gacha-label-input').value,
+                points: parseInt(document.getElementById('gacha-points-input').value),
+                rate: parseInt(document.getElementById('gacha-rate-input').value),
+                color: document.getElementById('gacha-color-input').value
+            });
+            await saveCloudData();
+            renderAdminGachaList();
+            e.target.reset();
+            showToast('เพิ่มรายการกาชาสำเร็จ', 'success');
+        }
+
+        async function deleteGacha(id) {
+            gachaItems = gachaItems.filter(x => x.id !== id);
+            await saveCloudData();
+            renderAdminGachaList();
+            showToast('ลบรายการสำเร็จ', 'info');
+        }
+
+        function renderAdminUsersList() {
+            let list = document.getElementById('admin-users-list');
+            if(!list) return;
+            list.innerHTML = '';
+            users.forEach(u => {
+                list.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-semibold text-white">${u.username}</td>
+                        <td class="p-3 text-purple-400">${u.role}</td>
+                        <td class="p-3 text-amber-400 font-mono">${u.credit} P</td>
+                        <td class="p-3 text-right space-x-1">
+                            <button onclick="adminTopUp('${u.username}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-lg">เติม</button>
+                            <button onclick="adminDeduct('${u.username}')" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white text-xs rounded-lg">หัก</button>
+                            <button onclick="adminResetPass('${u.username}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs rounded-lg">รหัส</button>
+                            <button onclick="adminDeleteUser('${u.username}')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white text-xs rounded-lg">ลบ</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function adminTopUp(uname) {
+            let amount = parseInt(prompt(`ระบุจำนวน Points ที่ต้องการเติมให้ ${uname}:`));
+            if (!isNaN(amount) && amount > 0) {
+                let u = users.find(x => x.username === uname);
+                if (u) {
+                    u.credit += amount;
+                    await saveCloudData();
+                    showToast(`เติมเครดิตให้ ${uname} สำเร็จ (+${amount} P)`, 'success');
+                    renderAdminUsersList();
+                }
+            }
+        }
+
+        async function adminDeduct(uname) {
+            let amount = parseInt(prompt(`ระบุจำนวน Points ที่ต้องการหักออกจาก ${uname}:`));
+            if (!isNaN(amount) && amount > 0) {
+                let u = users.find(x => x.username === uname);
+                if (u) {
+                    u.credit = Math.max(0, u.credit - amount);
+                    await saveCloudData();
+                    showToast(`หักเครดิตจาก ${uname} สำเร็จ (-${amount} P)`, 'warning');
+                    renderAdminUsersList();
+                }
+            }
+        }
+
+        async function adminResetPass(uname) {
+            let newP = prompt(`ตั้งรหัสผ่านใหม่สำหรับ ${uname}:`);
+            if (newP) {
+                let u = users.find(x => x.username === uname);
+                if (u) {
+                    u.pass = newP;
+                    await saveCloudData();
+                    showToast(`เปลี่ยนรหัสผ่านของ ${uname} สำเร็จ`, 'success');
+                    renderAdminUsersList();
+                }
+            }
+        }
+
+        async function adminDeleteUser(uname) {
+            if (uname === 'admin') {
+                return showToast('ไม่สามารถลบบัญชีผู้ดูแลระบบ (Admin) หลักได้', 'warning');
+            }
+            if (confirm(`คุณต้องการลบบัญชีผู้ใช้ "${uname}" ใช่หรือไม่?`)) {
+                users = users.filter(x => x.username !== uname);
+                await saveCloudData();
+                showToast(`ลบบัญชี ${uname} เรียบร้อยแล้ว`, 'success');
+                renderAdminUsersList();
+            }
+        }
+
+        // MUSIC MANAGEMENT
+        function renderAdminMusicList() {
+            let list = document.getElementById('admin-music-list');
+            if(!list) return;
+            list.innerHTML = '';
+            playlist.forEach((song) => {
+                list.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-semibold text-white">${song.title}</td>
+                        <td class="p-3 text-cyan-400 truncate max-w-xs font-mono text-xs">${song.url}</td>
+                        <td class="p-3 text-right"><button onclick="deleteMusic(${song.id})" class="text-xs text-rose-400 hover:underline">ลบ</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function handleAddMusic(e) {
+            e.preventDefault();
+            const title = document.getElementById('music-title-input').value.trim();
+            const url = document.getElementById('music-url-input').value.trim();
+            if(title && url) {
+                playlist.push({ id: Date.now(), title, url });
+                await saveCloudData();
+                renderAdminMusicList();
+                e.target.reset();
+                showToast('เพิ่มเพลงใหม่สำเร็จ', 'success');
+            }
+        }
+
+        async function deleteMusic(id) {
+            playlist = playlist.filter(x => x.id !== id);
+            await saveCloudData();
+            renderAdminMusicList();
+            showMusic('ลบเพลงสำเร็จ', 'info');
+        }
+
+        async function handleSaveWebSettings(e) {
+            e.preventDefault();
+            webSettings = {
+                name: document.getElementById('setting-brand-name').value,
+                tagline: document.getElementById('setting-brand-tagline').value,
+                announcement: document.getElementById('setting-announcement').value,
+                bannerImg: document.getElementById('setting-banner-img').value,
+                bannerTitle: 'วงล้อกาชาปอง UR & มินิเกมบาคาร่าสุดมันส์'
+            };
+            await saveCloudData();
+            applyWebSettings();
+            showToast('บันทึกการตั้งค่าเว็บเรียบร้อย', 'success');
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = { success: 'bg-emerald-500 text-slate-950 font-bold', warning: 'bg-amber-500 text-slate-950 font-bold', info: 'bg-purple-600 text-white font-bold' };
+            toast.className = `px-4 py-3 rounded-xl shadow-xl text-xs border border-white/20 ${colors[type]}`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info mr-1"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+    </script>
+</body>
+</html>
